@@ -33,7 +33,6 @@ Thumbs.db
 *.tmp
 
 # Dependency files
-requirements.txt
 *.lock
 Pipfile
 Pipfile.lock

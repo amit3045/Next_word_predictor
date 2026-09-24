@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: next-word-predictor-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend newapp:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DEFAULT_MODEL
+        value: new_fine
+      - key: PYTHON_VERSION
+        value: 3.9.6
