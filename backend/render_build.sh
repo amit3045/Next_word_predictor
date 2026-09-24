@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_MEDIA_BASE="https://media.githubusercontent.com/media/abhikr1871/Next_word_predictor/main/models"
+REPO_MEDIA_BASE="https://media.githubusercontent.com/media/amit3045/Next_word_predictor/main/models"
 mkdir -p models
 
 for model_file in new_fine.h5 new_fine.pkl new_lstm.h5 new_lstm.pkl; do
