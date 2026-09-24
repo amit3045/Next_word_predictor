@@ -53,3 +53,9 @@ tmp/
 # Jupyter notebooks
 .ipynb_checkpoints/
 *.ipynb
+
+# Trained prediction models deployed with Git LFS
+!models/new_fine.h5
+!models/new_fine.pkl
+!models/new_lstm.h5
+!models/new_lstm.pkl

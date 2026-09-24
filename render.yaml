@@ -3,7 +3,7 @@ services:
     name: next-word-predictor-api
     runtime: python
     plan: free
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: pip install -r backend/requirements.txt && bash backend/render_build.sh
     startCommand: gunicorn --chdir backend newapp:app --bind 0.0.0.0:$PORT
     healthCheckPath: /health
     envVars:
