@@ -3,7 +3,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 from functools import lru_cache
-from config import DEFAULT_MODEL, MODEL_MAP
+from config import DEFAULT_MODEL, MODEL_MAP, HOST, PORT
 
 app = Flask(__name__)
 
@@ -20,6 +20,10 @@ def get_model_and_tokenizer(model_name):
         tokenizer = pickle.load(f)
 
     return model, tokenizer
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"})
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -53,4 +57,4 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=HOST, port=PORT, debug=False)

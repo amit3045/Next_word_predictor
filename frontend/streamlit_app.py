@@ -1,5 +1,9 @@
+import os
 import streamlit as st
 import requests
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5000").rstrip("/")
+PREDICT_URL = f"{BACKEND_URL}/predict"
 
 st.title("Next Word Predictor")
 st.write("Choose a model and enter a sentence to predict the next top 3 words.")
@@ -13,7 +17,7 @@ if st.button("Predict"):
     if text:
         try:
             response = requests.post(
-                "http://127.0.0.1:5000/predict",
+                PREDICT_URL,
                 json={"text": text, "model": selected_model},
                 timeout=15,
             )
