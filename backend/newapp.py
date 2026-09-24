@@ -2,10 +2,43 @@ from flask import Flask, request, jsonify
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
+import json
+import os
+import tempfile
+import h5py
 from functools import lru_cache
 from config import DEFAULT_MODEL, MODEL_MAP, HOST, PORT
 
 app = Flask(__name__)
+
+
+def load_legacy_model(model_path):
+    try:
+        return load_model(model_path, compile=False)
+    except ValueError as error:
+        if "batch_shape" not in str(error):
+            raise
+
+        with h5py.File(model_path, "r") as source:
+            model_config = json.loads(source.attrs["model_config"])
+            for layer in model_config["config"]["layers"]:
+                if layer["class_name"] == "InputLayer" and "batch_shape" in layer["config"]:
+                    batch_shape = layer["config"].pop("batch_shape")
+                    layer["config"]["input_shape"] = batch_shape[1:]
+
+            with tempfile.NamedTemporaryFile(suffix=".h5", delete=False) as converted:
+                converted_path = converted.name
+
+            with h5py.File(converted_path, "w") as target:
+                for key, value in source.attrs.items():
+                    target.attrs[key] = value
+                target.attrs["model_config"] = json.dumps(model_config).encode("utf-8")
+                source.copy("model_weights", target)
+
+        try:
+            return load_model(converted_path, compile=False)
+        finally:
+            os.unlink(converted_path)
 
 @lru_cache(maxsize=None)
 def get_model_and_tokenizer(model_name):
@@ -15,7 +48,7 @@ def get_model_and_tokenizer(model_name):
     model_path = MODEL_MAP[model_name]["model"]
     tokenizer_path = MODEL_MAP[model_name]["tokenizer"]
 
-    model = load_model(model_path)
+    model = load_legacy_model(model_path)
     with open(tokenizer_path, 'rb') as f:
         tokenizer = pickle.load(f)
 
